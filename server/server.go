@@ -8,12 +8,13 @@ import (
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
+  "github.com/rs/cors"
 	"github.com/dandelion293949/todo-list/graph"
 	"github.com/dandelion293949/todo-list/graph/domains"
 	"github.com/dandelion293949/todo-list/graph/generated"
 )
 
-const defaultPort = "8080"
+const defaultPort = "9080"
 
 func main() {
 	port := os.Getenv("PORT")
@@ -32,7 +33,13 @@ func main() {
   )
 
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
-	http.Handle("/query", srv)
+
+  c := cors.New(cors.Options {
+    AllowedOrigins: []string{"http://localhost:8080",},
+    AllowCredentials: true,
+  })
+
+	http.Handle("/query", c.Handler(srv))
 
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))
